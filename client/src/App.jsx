@@ -176,4 +176,4 @@ function BookButton({ classId, email, bookClass }) {
   );
 }
 
-export default App;\n// v6\n
+export default App;\n// v7\n

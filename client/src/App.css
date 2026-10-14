@@ -1,0 +1,774 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&family=Syne:wght@700;800&display=swap');
+
+:root {
+  --klein-blue: #002bf0;
+  --klein-deep: #001bb3;
+  --klein-dark: #000938;
+  --klein-midnight: #04091a;
+  --glow-electric: #2952ff;
+  --accent-cyan: #38bdf8;
+  --accent-neon: #ccff00;
+  --paper-chalk: #f2f4f8;
+  --card-white: #ffffff;
+  --text-dark: #0a0f1d;
+  --text-muted: #5a6a85;
+  --text-light: #e8ecf8;
+  --border-glass: rgba(255, 255, 255, 0.35);
+  --border-dashed: rgba(0, 43, 240, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ========================================================
+   SLIDESHOW ENGINE
+   Locks every slide strictly to full viewport (100vh)
+   Scroll snapping transitions slide-by-slide
+   ======================================================== */
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  height: 100vh;
+  overflow-y: scroll;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--klein-midnight);
+  background-image: 
+    radial-gradient(circle 420px at 0% 30%, rgba(0, 43, 240, 0.45) 0%, rgba(56, 189, 248, 0.2) 45%, transparent 70%),
+    radial-gradient(circle 420px at 100% 70%, rgba(41, 82, 255, 0.45) 0%, rgba(56, 189, 248, 0.2) 45%, transparent 70%);
+  background-attachment: fixed;
+  color: var(--text-dark);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Fixed Film Grain / Noise Texture Overlay across all slides */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Fixed Right-hand Slideshow Rail Indicator */
+body::after {
+  content: "";
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 72px;
+  border-radius: 9999px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.85) 0px,
+    rgba(255, 255, 255, 0.85) 16px,
+    transparent 16px,
+    transparent 28px
+  );
+  box-shadow: 0 0 12px rgba(0, 43, 240, 0.5);
+  pointer-events: none;
+  z-index: 998;
+}
+
+/* Main Container: Full width flex column hosting the 3 slides */
+main {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  /* Slide 3 Background: Deep Ultramarine Midnight Gradient */
+  background: radial-gradient(circle at 50% 85%, rgba(0, 43, 240, 0.28) 0%, transparent 60%),
+              linear-gradient(180deg, #020717 0%, #000e3a 50%, #020717 100%);
+}
+
+/* Slide 1 Background (Vibrant Klein Blue Aura & glowing side gradient circles) */
+main::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--klein-dark);
+  background-image: 
+    /* Glowing gradient circles at the sides */
+    radial-gradient(circle 380px at -60px 30%, rgba(0, 43, 240, 0.95) 0%, rgba(56, 189, 248, 0.6) 35%, transparent 70%),
+    radial-gradient(circle 300px at -40px 75%, rgba(41, 82, 255, 0.85) 0%, rgba(0, 27, 179, 0.6) 40%, transparent 70%),
+    radial-gradient(circle 400px at calc(100% + 60px) 25%, rgba(56, 189, 248, 0.85) 0%, rgba(0, 43, 240, 0.6) 35%, transparent 70%),
+    radial-gradient(circle 320px at calc(100% + 40px) 70%, rgba(41, 82, 255, 0.85) 0%, rgba(204, 255, 0, 0.35) 35%, transparent 70%),
+    /* Center aura */
+    radial-gradient(circle at 50% 45%, #002bf0 0%, #001899 42%, #000938 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Slide 1 Background Texture from User Image */
+main::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-image: url('/texture-hero.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.50;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ========================================================
+   SLIDE 1: HERO & MEMBER SELECTION (100vh Slideshow Slide)
+   Split layout: Big Slideshow Section on Left | Logo & Dropdown on Right
+   ======================================================== */
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  width: calc(50% - 40px);
+  max-width: 480px;
+  margin-left: calc(50% + 24px);
+  margin-right: auto;
+  margin-top: calc(50vh - 90px);
+  margin-bottom: 20px;
+  font-size: 4.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  position: relative;
+  z-index: 3;
+  white-space: nowrap;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin-top: calc(50vh - 90px);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 43, 240, 0.5);
+}
+
+/* Scrolling Slideshow Animation: moves left to right, slowly dissolves at the end */
+@keyframes athleteSlideshow {
+  /* Image 1: Athlete with dumbbell */
+  0% {
+    background-image: url('/athlete-hero.png');
+    transform: translateX(-35px);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  8% {
+    transform: translateX(0px);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  25% {
+    transform: translateX(12px);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  33.3% {
+    transform: translateX(42px);
+    opacity: 0;
+    filter: blur(4px);
+    background-image: url('/athlete-hero.png');
+  }
+
+  /* Image 2: Athlete with battle ropes */
+  33.31% {
+    background-image: url('/athlete-ropes.png');
+    transform: translateX(-35px);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  41.3% {
+    transform: translateX(0px);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  58.3% {
+    transform: translateX(12px);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  66.6% {
+    transform: translateX(42px);
+    opacity: 0;
+    filter: blur(4px);
+    background-image: url('/athlete-ropes.png');
+  }
+
+  /* Image 3: Athlete on plyo box */
+  66.61% {
+    background-image: url('/athlete-box.png');
+    transform: translateX(-35px);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  74.6% {
+    transform: translateX(0px);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  91.6% {
+    transform: translateX(12px);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  99.99% {
+    transform: translateX(42px);
+    opacity: 0;
+    filter: blur(4px);
+    background-image: url('/athlete-box.png');
+  }
+  100% {
+    background-image: url('/athlete-hero.png');
+    transform: translateX(-35px);
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+/* Big Slideshow Section on the Left (symmetrically centered with Sweatlah & dropdown) */
+h1::before {
+  content: "";
+  position: absolute;
+  right: calc(100% + 48px);
+  top: -115px;
+  width: 440px;
+  height: 380px;
+  max-width: 42vw;
+  max-height: 60vh;
+  border-radius: 28px;
+  background-image: url('/athlete-hero.png');
+  background-size: cover;
+  background-position: center 20%;
+  background-repeat: no-repeat;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.35),
+              0 20px 50px rgba(0, 15, 90, 0.65),
+              0 0 45px rgba(41, 82, 255, 0.4);
+  animation: athleteSlideshow 8.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+  mask-image: linear-gradient(to right, black 75%, rgba(0, 0, 0, 0.2) 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 75%, rgba(0, 0, 0, 0.2) 92%, transparent 100%);
+  z-index: 3;
+}
+
+h1::after {
+  content: "!";
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: 800;
+  color: #ffffff;
+  margin-left: 1px;
+}
+
+/* Member Selector Pill Capsule on the Right */
+label {
+  width: calc(50% - 40px);
+  max-width: 480px;
+  margin-left: calc(50% + 24px);
+  margin-right: auto;
+  margin-top: 0;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1.5px solid var(--border-glass);
+  border-radius: 9999px;
+  padding: 14px 28px;
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6),
+              0 20px 45px -10px rgba(0, 15, 90, 0.45);
+  position: relative;
+  z-index: 2;
+  transition: all 0.25s ease;
+}
+
+label:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8),
+              0 24px 50px -8px rgba(0, 20, 120, 0.55);
+}
+
+label select {
+  flex: 1;
+  max-width: 230px;
+  padding: 10px 18px;
+  background: #ffffff;
+  color: var(--klein-deep);
+  border: none;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+label select:focus {
+  box-shadow: 0 0 0 3px rgba(41, 82, 255, 0.5);
+}
+
+/* Feedback message on the Right (completes Slide 1 at exactly 100vh) */
+.message {
+  width: calc(50% - 40px);
+  max-width: 480px;
+  min-height: 24px;
+  line-height: 24px;
+  margin-left: calc(50% + 24px);
+  margin-right: auto;
+  margin-top: 0;
+  margin-bottom: calc(50vh - 101px);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-neon);
+  letter-spacing: -0.01em;
+  text-align: left;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+.message:empty {
+  visibility: hidden;
+}
+
+/* ========================================================
+   SLIDE 2: THE SCHEDULE (100vh Slideshow Slide)
+   Poster Texture (Sample 2: NEVER GIVE UP), Klein Blue Accent, Chalk Paper
+   ======================================================== */
+
+section {
+  width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 40px 24px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 460px));
+  justify-content: center;
+  align-content: center;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+  background-color: var(--paper-chalk);
+  border-top: 1px dashed var(--border-dashed);
+  border-bottom: 1px dashed var(--border-dashed);
+  box-shadow: 0 0 60px rgba(0, 10, 40, 0.35);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+section::-webkit-scrollbar {
+  display: none;
+}
+
+/* Watermark Layer: "NEVER GIVE UP" kinetic poster texture from Sample 2 */
+section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/texture-poster.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.08;
+  mix-blend-mode: multiply;
+  filter: contrast(135%) grayscale(30%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Secondary gym watermark blend */
+section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/gym-bg.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Section Title & Day Filter Pills (Spans both columns) */
+section > h2,
+section > .days {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 934px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 1;
+}
+
+section > h2 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--klein-deep);
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+
+.days {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 10px;
+  margin-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.days::-webkit-scrollbar {
+  display: none;
+}
+
+.days button {
+  flex: 0 0 auto;
+  padding: 9px 20px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 43, 240, 0.15);
+  background: #ffffff;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 30, 100, 0.04);
+}
+
+.days button:hover:not(:disabled) {
+  border-color: var(--klein-blue);
+  color: var(--klein-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 43, 240, 0.12);
+}
+
+.days button:disabled {
+  background: var(--klein-blue);
+  color: #ffffff;
+  border-color: var(--klein-blue);
+  cursor: default;
+  box-shadow: 0 6px 18px rgba(0, 43, 240, 0.35);
+  transform: scale(1.03);
+}
+
+/* Class Card (Article) */
+article {
+  background: #ffffff;
+  border: 1px solid rgba(0, 43, 240, 0.08);
+  border-radius: 20px;
+  padding: 16px 22px;
+  box-shadow: 0 6px 22px -4px rgba(0, 20, 80, 0.06);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 2px 16px;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+article::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(to bottom, var(--klein-blue), var(--accent-cyan));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+article:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -6px rgba(0, 43, 240, 0.14);
+  border-color: rgba(0, 43, 240, 0.25);
+}
+
+article:hover::before {
+  opacity: 1;
+}
+
+/* Class Title */
+article h3 {
+  grid-column: 1;
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  letter-spacing: -0.02em;
+}
+
+/* Coach and Time */
+article p:first-of-type {
+  grid-column: 1;
+  margin: 2px 0 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Spots Left Badge */
+article p:last-of-type {
+  grid-column: 1;
+  margin: 8px 0 0;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #eef2ff;
+  color: var(--klein-deep);
+  border: 1px solid rgba(0, 43, 240, 0.15);
+}
+
+/* Book Button */
+article button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  padding: 10px 24px;
+  background: var(--klein-blue);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(0, 43, 240, 0.3);
+}
+
+article button:hover:not(:disabled) {
+  background: var(--glow-electric);
+  box-shadow: 0 8px 24px rgba(41, 82, 255, 0.5);
+  transform: scale(1.05);
+}
+
+article button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+article button:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ========================================================
+   SLIDE 3: MY BOOKINGS (100vh Slideshow Slide)
+   Midnight Ultramarine Gradient, Frosted Capsules, Red Ring Cancel
+   ======================================================== */
+
+main > h2:last-of-type {
+  max-width: 680px;
+  width: calc(100% - 40px);
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin-top: calc(50vh - 120px);
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin-top: calc(50vh - 120px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+main > p:last-of-type {
+  max-width: 680px;
+  width: calc(100% - 40px);
+  margin: 0 auto calc(50vh - 120px);
+  color: #94a3b8;
+  font-size: 1.02rem;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+/* If bookings exist, ul has the bottom margin instead */
+main > p:last-of-type:not(:last-child) {
+  margin-bottom: 24px;
+}
+
+/* Bookings List */
+ul {
+  max-width: 680px;
+  width: calc(100% - 40px);
+  margin: 0 auto calc(50vh - 120px);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+li {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+}
+
+li:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 43, 240, 0.25);
+}
+
+/* Cancel Button (Refined Translucent Red Capsule) */
+li button {
+  padding: 8px 20px;
+  background: transparent;
+  color: #fca5a5;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+li button:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+}
+
+/* Tablet & Mobile responsive */
+@media (max-width: 860px) {
+  h1 {
+    width: calc(100% - 32px);
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: calc(50vh - 220px);
+    text-align: center;
+    justify-content: center;
+    font-size: 3.2rem;
+    flex-direction: column;
+    white-space: normal;
+  }
+  h1::before {
+    position: static;
+    transform: none;
+    width: 280px;
+    height: 310px;
+    max-width: 80vw;
+    margin: 0 auto 16px;
+    order: -1;
+    border-radius: 24px;
+  }
+  label {
+    width: calc(100% - 32px);
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 12px 20px;
+  }
+  .message {
+    width: calc(100% - 32px);
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    margin-bottom: calc(50vh - 220px);
+  }
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2.4rem;
+    margin-top: calc(50vh - 180px);
+  }
+  h1::before {
+    width: 220px;
+    height: 240px;
+    margin-bottom: 12px;
+    border-radius: 20px;
+  }
+  .message {
+    margin-bottom: calc(50vh - 180px);
+  }
+}
+
+@media (max-width: 768px) {
+  section {
+    grid-template-columns: 1fr;
+    padding: 30px 16px;
+  }
+  article {
+    padding: 14px 18px;
+  }
+  article button {
+    padding: 9px 18px;
+    font-size: 0.85rem;
+  }
+  li {
+    padding: 14px 20px;
+    border-radius: 20px;
+  }
+}\n/* v3 */\n

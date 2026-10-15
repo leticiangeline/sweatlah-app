@@ -1,13 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
+require("dotenv").config({ path: __dirname + "/.env" });
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const pool = new Pool({
-  connectionString: "postgresql://postgres:sweatlah123@localhost:5432/sweatlah",
+  connectionString: process.env.DATABASE_URL,
 });
 
 app.get("/api/members", async (req, res) => {

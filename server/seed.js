@@ -1,7 +1,8 @@
 const { Pool } = require("pg");
+require("dotenv").config({ path: __dirname + "/.env" });
 
 const pool = new Pool({
-  connectionString: "postgresql://postgres:sweatlah123@localhost:5432/sweatlah",
+  connectionString: process.env.DATABASE_URL,
 });
 
 async function seed() {

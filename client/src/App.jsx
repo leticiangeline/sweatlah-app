@@ -46,7 +46,13 @@ function App() {
       left[classes[i].id] = classes[i].capacity - classes[i].booked;
     }
     setSpotsLeft(left);
-  }, [classes.length]);
+  }, [classes]);
+
+  useEffect(() => {
+    if (!message) return undefined;
+    const timer = setTimeout(() => setMessage(""), 3500);
+    return () => clearTimeout(timer);
+  }, [message]);
 
   async function selectMember(value) {
     setEmail(value);
@@ -56,34 +62,60 @@ function App() {
     setBookings(data);
   }
 
+  async function fetchClasses() {
+    const res = await fetch("http://localhost:3001/api/classes");
+    const data = await res.json();
+    setClasses(data);
+  }
+
+  async function fetchBookings() {
+    const res = await fetch("http://localhost:3001/api/bookings/" + email);
+    const data = await res.json();
+    setBookings(data);
+  }
+
   async function bookClass(classId) {
     try {
-      await fetch("http://localhost:3001/api/bookings", {
+      const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, classId: classId }),
+        body: JSON.stringify({ class_id: classId, email }),
       });
-      const res = await fetch("http://localhost:3001/api/classes");
+
       const data = await res.json();
-      setClasses(data);
-      const res2 = await fetch("http://localhost:3001/api/bookings/" + email);
-      const data2 = await res2.json();
-      setBookings(data2);
+      console.log("BOOKING RESPONSE STATUS:", res.status, "DATA:", data);
+
+      if (!res.ok) {
+        const errorMsg = data.error || data.message || "Something went wrong";
+        setMessage(errorMsg);
+        return; // STOP execution - success logic and refreshers do NOT run
+      }
+
       setMessage("Booked!");
-    } catch (err) {}
+      await fetchClasses();
+      await fetchBookings();
+    } catch (err) {
+      console.error(err);
+      setMessage("Something went wrong. Try again.");
+    }
   }
 
   async function cancelBooking(id) {
     try {
-      await fetch("http://localhost:3001/api/bookings/" + id, { method: "DELETE" });
-      const res = await fetch("http://localhost:3001/api/classes");
-      const data = await res.json();
-      setClasses(data);
-      const res2 = await fetch("http://localhost:3001/api/bookings/" + email);
-      const data2 = await res2.json();
-      setBookings(data2);
-      setMessage("Cancelled.");
-    } catch (err) {}
+      const res = await fetch("http://localhost:3001/api/bookings/" + id, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        const errorMsg = data.error || data.message || "Something went wrong";
+        setMessage(errorMsg);
+        return; // STOP execution - refreshers do NOT run
+      }
+      setMessage("Booking cancelled!");
+      await fetchClasses();
+      await fetchBookings();
+    } catch (err) {
+      console.error(err);
+      setMessage("Something went wrong. Try again.");
+    }
   }
 
   let shown = classes;
@@ -107,8 +139,6 @@ function App() {
           ))}
         </select>
       </label>
-      <p className="message">{message}</p>
-
       <Schedule
         classes={shown}
         spotsLeft={spotsLeft}
@@ -119,15 +149,23 @@ function App() {
       />
 
       <h2>My bookings</h2>
-      {bookings.length === 0 && <p>No bookings yet.</p>}
       <ul>
-        {bookings.map((b) => (
-          <li key={b.id}>
-            {b.title}, {formatTime(b.starts_at)}{" "}
-            <button onClick={() => cancelBooking(b.id)}>Cancel</button>
-          </li>
-        ))}
+        {bookings.length === 0 ? (
+          <li key="empty">No bookings yet.</li>
+        ) : (
+          bookings.map((b) => (
+            <li key={b.id}>
+              {b.title}, {formatTime(b.starts_at)}{" "}
+              <button onClick={() => cancelBooking(b.id)}>Cancel</button>
+            </li>
+          ))
+        )}
       </ul>
+      {message && (
+        <div className="toast" role="status" onClick={() => setMessage("")}>
+          {message}
+        </div>
+      )}
     </main>
   );
 }
@@ -152,9 +190,12 @@ function Schedule({ classes, spotsLeft, day, setDay, email, bookClass }) {
 }
 
 function ClassCard({ cls, spotsLeft, email, bookClass }) {
-  let label = spotsLeft[cls.id] + " spots left";
-  if (spotsLeft[cls.id] <= 3) {
-    label = "Almost full! " + spotsLeft[cls.id] + " left";
+  const spots = spotsLeft[cls.id];
+  let label = spots + " spots left";
+  if (spots <= 0) {
+    label = "FULL";
+  } else if (spots <= 3) {
+    label = "Almost full! " + spots + " left";
   }
   return (
     <article>

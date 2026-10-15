@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import { getMembers, getClasses, getBookings, createBooking, deleteBooking } from "./api.js";
 
 function formatTime(iso) {
   const d = new Date(iso);
@@ -23,8 +24,7 @@ function App() {
 
   useEffect(() => {
     async function loadMembers() {
-      const res = await fetch("http://localhost:3001/api/members");
-      const data = await res.json();
+      const data = await getMembers();
       setMembers(data);
     }
     loadMembers();
@@ -32,8 +32,7 @@ function App() {
 
   useEffect(() => {
     async function loadClasses() {
-      const res = await fetch("http://localhost:3001/api/classes");
-      const data = await res.json();
+      const data = await getClasses();
       setClasses(data);
     }
     loadClasses();
@@ -48,30 +47,19 @@ function App() {
   async function selectMember(value) {
     setEmail(value);
     setMessage("");
-    const res = await fetch("http://localhost:3001/api/bookings/" + value);
-    const data = await res.json();
-    setBookings(data);
+    await refreshData(value);
   }
 
-  async function fetchClasses() {
-    const res = await fetch("http://localhost:3001/api/classes");
-    const data = await res.json();
+  async function refreshData(email) {
+    const data = await getClasses();
     setClasses(data);
-  }
-
-  async function fetchBookings() {
-    const res = await fetch("http://localhost:3001/api/bookings/" + email);
-    const data = await res.json();
-    setBookings(data);
+    const data2 = await getBookings(email);
+    setBookings(data2);
   }
 
   async function bookClass(classId) {
     try {
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ class_id: classId, email }),
-      });
+      const res = await createBooking(email, classId);
 
       const data = await res.json();
       console.log("BOOKING RESPONSE STATUS:", res.status, "DATA:", data);
@@ -83,8 +71,7 @@ function App() {
       }
 
       setMessage("Booked!");
-      await fetchClasses();
-      await fetchBookings();
+      await refreshData(email);
     } catch (err) {
       console.error(err);
       setMessage("Something went wrong. Try again.");
@@ -93,7 +80,7 @@ function App() {
 
   async function cancelBooking(id) {
     try {
-      const res = await fetch("http://localhost:3001/api/bookings/" + id, { method: "DELETE" });
+      const res = await deleteBooking(id);
       if (!res.ok) {
         const data = await res.json();
         const errorMsg = data.error || data.message || "Something went wrong";
@@ -101,8 +88,7 @@ function App() {
         return; // STOP execution - refreshers do NOT run
       }
       setMessage("Booking cancelled!");
-      await fetchClasses();
-      await fetchBookings();
+      await refreshData(email);
     } catch (err) {
       console.error(err);
       setMessage("Something went wrong. Try again.");

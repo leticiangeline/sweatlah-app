@@ -12,6 +12,7 @@ function App() {
   const [bookings, setBookings] = useState([]);
   const [day, setDay] = useState("All");
   const [message, setMessage] = useState("");
+  const [isBooking, setIsBooking] = useState(false);
 
   useEffect(() => {
     async function loadMembers() {
@@ -49,6 +50,8 @@ function App() {
   }
 
   async function bookClass(classId) {
+    if (isBooking) return;
+    setIsBooking(true);
     try {
       const res = await createBooking(email, classId);
 
@@ -66,6 +69,8 @@ function App() {
     } catch (err) {
       console.error(err);
       setMessage("Something went wrong. Try again.");
+    } finally {
+      setIsBooking(false);
     }
   }
 
@@ -113,6 +118,7 @@ function App() {
         setDay={setDay}
         email={email}
         bookings={bookings}
+        isSubmitting={isBooking}
         bookClass={bookClass}
       />
 
@@ -138,7 +144,7 @@ function App() {
   );
 }
 
-function Schedule({ classes, day, setDay, email, bookings = [], bookClass }) {
+function Schedule({ classes, day, setDay, email, bookings = [], isSubmitting = false, bookClass }) {
   const days = ["All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const bookedIds = new Set(bookings.map((b) => b.class_id));
 
@@ -158,6 +164,7 @@ function Schedule({ classes, day, setDay, email, bookings = [], bookClass }) {
           cls={c}
           email={email}
           isBooked={bookedIds.has(c.id)}
+          isSubmitting={isSubmitting}
           bookClass={bookClass}
         />
       ))}

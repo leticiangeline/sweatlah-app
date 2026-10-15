@@ -14,5 +14,6 @@ CREATE TABLE classes (
 CREATE TABLE bookings (
   id SERIAL PRIMARY KEY,
   member_email TEXT REFERENCES members(email),
-  class_id INTEGER REFERENCES classes(id)
+  class_id INTEGER REFERENCES classes(id),
+  UNIQUE (member_email, class_id)
 );

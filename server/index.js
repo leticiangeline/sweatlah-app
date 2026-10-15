@@ -71,6 +71,9 @@ app.post("/api/bookings", async (req, res) => {
     }
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    if (err.code === "23505") {
+      return res.status(409).json({ error: "You have already booked this class" });
+    }
     console.error(err);
     res.status(500).json({ error: "Something went wrong. Try again." });
   }

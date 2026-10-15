@@ -30,7 +30,7 @@ app.get("/api/classes", async (req, res) => {
 
 app.get("/api/bookings/:email", async (req, res) => {
   const result = await pool.query(
-    "SELECT bookings.id, classes.title, classes.starts_at FROM bookings JOIN classes ON classes.id = bookings.class_id WHERE bookings.member_email = $1 ORDER BY classes.starts_at",
+    "SELECT bookings.id, bookings.class_id, classes.title, classes.starts_at FROM bookings JOIN classes ON classes.id = bookings.class_id WHERE bookings.member_email = $1 ORDER BY classes.starts_at",
     [req.params.email]
   );
   res.json(result.rows);
@@ -38,10 +38,22 @@ app.get("/api/bookings/:email", async (req, res) => {
 
 app.post("/api/bookings", async (req, res) => {
   const classId = req.body?.classId ?? req.body?.class_id;
+  const email = req.body?.email;
   if (!classId) {
     return res.status(400).json({ error: "classId is required" });
   }
+  if (!email) {
+    return res.status(400).json({ error: "email is required" });
+  }
   try {
+    const existing = await pool.query(
+      "SELECT id FROM bookings WHERE member_email = $1 AND class_id = $2",
+      [email, classId]
+    );
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ error: "You have already booked this class" });
+    }
+
     const classResult = await pool.query("SELECT capacity FROM classes WHERE id = $1", [classId]);
     const count = await pool.query("SELECT COUNT(*) FROM bookings WHERE class_id = $1", [classId]);
     if (classResult.rows.length > 0 && Number(count.rows[0].count) >= classResult.rows[0].capacity) {
@@ -49,7 +61,7 @@ app.post("/api/bookings", async (req, res) => {
     }
     const result = await pool.query(
       "INSERT INTO bookings (member_email, class_id) SELECT $1, $2 WHERE (SELECT capacity FROM classes WHERE id = $2) > (SELECT COUNT(*) FROM bookings WHERE class_id = $2) RETURNING *",
-      [req.body.email, classId]
+      [email, classId]
     );
     if (result.rows.length === 0) {
       if (classResult.rows.length > 0) {

@@ -1,6 +1,12 @@
 import { formatTime } from "../formatTime.js";
 
-function BookButton({ classId, email, bookClass }) {
+function BookButton({ classId, email, isBooked, isFull, bookClass }) {
+  if (isBooked) {
+    return <button disabled={true}>Booked</button>;
+  }
+  if (isFull) {
+    return <button disabled={true}>Full</button>;
+  }
   return (
     <button disabled={email === ""} onClick={() => bookClass(classId)}>
       Book
@@ -8,10 +14,11 @@ function BookButton({ classId, email, bookClass }) {
   );
 }
 
-export default function ClassCard({ cls, email, bookClass }) {
+export default function ClassCard({ cls, email, isBooked = false, bookClass }) {
   const spots = cls.capacity - cls.booked;
+  const isFull = spots <= 0;
   let label = spots + " spots left";
-  if (spots <= 0) {
+  if (isFull) {
     label = "FULL";
   } else if (spots <= 3) {
     label = "Almost full! " + spots + " left";
@@ -23,7 +30,13 @@ export default function ClassCard({ cls, email, bookClass }) {
         {cls.coach}, {formatTime(cls.starts_at)}
       </p>
       <p>{label}</p>
-      <BookButton classId={cls.id} email={email} bookClass={bookClass} />
+      <BookButton
+        classId={cls.id}
+        email={email}
+        isBooked={isBooked}
+        isFull={isFull}
+        bookClass={bookClass}
+      />
     </article>
   );
 }

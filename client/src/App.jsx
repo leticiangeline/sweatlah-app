@@ -112,6 +112,7 @@ function App() {
         day={day}
         setDay={setDay}
         email={email}
+        bookings={bookings}
         bookClass={bookClass}
       />
 
@@ -137,8 +138,10 @@ function App() {
   );
 }
 
-function Schedule({ classes, day, setDay, email, bookClass }) {
+function Schedule({ classes, day, setDay, email, bookings = [], bookClass }) {
   const days = ["All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const bookedIds = new Set(bookings.map((b) => b.class_id));
+
   return (
     <section>
       <h2>This week</h2>
@@ -150,7 +153,13 @@ function Schedule({ classes, day, setDay, email, bookClass }) {
         ))}
       </div>
       {classes.map((c) => (
-        <ClassCard key={c.id} cls={c} email={email} bookClass={bookClass} />
+        <ClassCard
+          key={c.id}
+          cls={c}
+          email={email}
+          isBooked={bookedIds.has(c.id)}
+          bookClass={bookClass}
+        />
       ))}
     </section>
   );

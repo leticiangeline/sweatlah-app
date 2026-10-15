@@ -17,7 +17,6 @@ function App() {
   const [members, setMembers] = useState([]);
   const [email, setEmail] = useState("");
   const [classes, setClasses] = useState([]);
-  const [spotsLeft, setSpotsLeft] = useState({});
   const [bookings, setBookings] = useState([]);
   const [day, setDay] = useState("All");
   const [message, setMessage] = useState("");
@@ -39,14 +38,6 @@ function App() {
     }
     loadClasses();
   }, []);
-
-  useEffect(() => {
-    const left = {};
-    for (let i = 0; i < classes.length; i++) {
-      left[classes[i].id] = classes[i].capacity - classes[i].booked;
-    }
-    setSpotsLeft(left);
-  }, [classes]);
 
   useEffect(() => {
     if (!message) return undefined;
@@ -141,7 +132,6 @@ function App() {
       </label>
       <Schedule
         classes={shown}
-        spotsLeft={spotsLeft}
         day={day}
         setDay={setDay}
         email={email}
@@ -170,7 +160,7 @@ function App() {
   );
 }
 
-function Schedule({ classes, spotsLeft, day, setDay, email, bookClass }) {
+function Schedule({ classes, day, setDay, email, bookClass }) {
   const days = ["All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   return (
     <section>
@@ -183,14 +173,14 @@ function Schedule({ classes, spotsLeft, day, setDay, email, bookClass }) {
         ))}
       </div>
       {classes.map((c) => (
-        <ClassCard key={c.id} cls={c} spotsLeft={spotsLeft} email={email} bookClass={bookClass} />
+        <ClassCard key={c.id} cls={c} email={email} bookClass={bookClass} />
       ))}
     </section>
   );
 }
 
-function ClassCard({ cls, spotsLeft, email, bookClass }) {
-  const spots = spotsLeft[cls.id];
+function ClassCard({ cls, email, bookClass }) {
+  const spots = cls.capacity - cls.booked;
   let label = spots + " spots left";
   if (spots <= 0) {
     label = "FULL";

@@ -1,0 +1,7 @@
+# Refactoring Rules
+
+1. Refactoring preserves existing behavior. Do not fix bugs, alter UI strings, or add features.
+2. Exactly one logical change per prompt. If other improvements are noticed, note them down; do not touch them.
+3. Do not rename exported functions, component names, API endpoints, or prop contracts unless explicitly requested.
+4. Do not install new third-party packages.
+5. After every edit, run `npm test` and `npm run lint` in client/ and show the output.

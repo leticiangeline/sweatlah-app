@@ -1,13 +1,8 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { getMembers, getClasses, getBookings, createBooking, deleteBooking } from "./api.js";
-
-function formatTime(iso) {
-  const d = new Date(iso);
-  const day = d.toLocaleDateString("en-MY", { weekday: "short" });
-  const time = d.toLocaleTimeString("en-MY", { hour: "2-digit", minute: "2-digit" });
-  return day + " " + time;
-}
+import ClassCard from "./components/ClassCard.jsx";
+import { formatTime } from "./formatTime.js";
 
 function formatTime2(iso) {
   const d = new Date(iso);
@@ -162,34 +157,6 @@ function Schedule({ classes, day, setDay, email, bookClass }) {
         <ClassCard key={c.id} cls={c} email={email} bookClass={bookClass} />
       ))}
     </section>
-  );
-}
-
-function ClassCard({ cls, email, bookClass }) {
-  const spots = cls.capacity - cls.booked;
-  let label = spots + " spots left";
-  if (spots <= 0) {
-    label = "FULL";
-  } else if (spots <= 3) {
-    label = "Almost full! " + spots + " left";
-  }
-  return (
-    <article>
-      <h3>{cls.title}</h3>
-      <p>
-        {cls.coach}, {formatTime(cls.starts_at)}
-      </p>
-      <p>{label}</p>
-      <BookButton classId={cls.id} email={email} bookClass={bookClass} />
-    </article>
-  );
-}
-
-function BookButton({ classId, email, bookClass }) {
-  return (
-    <button disabled={email === ""} onClick={() => bookClass(classId)}>
-      Book
-    </button>
   );
 }
 
